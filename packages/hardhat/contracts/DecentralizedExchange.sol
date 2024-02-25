@@ -17,6 +17,9 @@ contract DecentralizedExchange {
         address token2;
     }
 
+    // An array to store all whitelisted tokens
+    address[] public whitelistedTokens;
+    
     // An array to store all registered tokens
     address[] public registeredTokens;
     
@@ -37,6 +40,9 @@ contract DecentralizedExchange {
 
     // Function to register a new ERC20 token
     function registerToken(address _tokenAddress) external {
+        // Ensure the token is whitelisted
+        require(isTokenWhitelisted(_tokenAddress) == true, "Token is not whitelisted");
+
         // Ensure the token is not already registered
         require(isTokenRegistered(_tokenAddress) == false, "Token is already registered");
 
@@ -50,6 +56,16 @@ contract DecentralizedExchange {
     function isTokenRegistered(address _tokenAddress) internal view returns (bool) {
         for (uint256 i = 0; i < registeredTokens.length; i++) {
             if (registeredTokens[i] == _tokenAddress) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Function to check if a token is whitelisted
+    function isTokenWhitelisted(address _tokenAddress) internal view returns (bool) {
+        for (uint256 i = 0; i < whitelistedTokens.length; i++) {
+            if (whitelistedTokens[i] == _tokenAddress) {
                 return true;
             }
         }
@@ -102,5 +118,20 @@ contract DecentralizedExchange {
             }
         }
         return false;
+    }
+
+    // Function to add a token to the whitelist
+    function whitelistToken(address _tokenAddress) external {
+        whitelistedTokens.push(_tokenAddress);
+    }
+
+    // Function to remove a token from the whitelist
+    function removeFromWhitelist(address _tokenAddress) external {
+        for (uint256 i = 0; i < whitelistedTokens.length; i++) {
+            if (whitelistedTokens[i] == _tokenAddress) {
+                delete whitelistedTokens[i];
+                break;
+            }
+        }
     }
 }
